@@ -5,11 +5,11 @@ from rest_framework.permissions import SAFE_METHODS, BasePermission
 class IsOwner(BasePermission):
     def has_permission(self, request, view):
         return (
-            request.user and request.user.is_authenticated and not request.user.is_staff
+            request.auth and request.auth.get("user_id") and not request.auth.get("is_staff")
         )
 
     def has_object_permission(self, request, view, obj):
-        return request.user == obj.owner
+        return request.auth.get("user_id") == obj.owner_id
 
 
 class IsAnonymous(BasePermission):

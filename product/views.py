@@ -6,7 +6,8 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from common.permissions import IsOwner, IsAnonymous, CanEditSomeTime
+
+from common.permissions import CanEditSomeTime, IsAnonymous, IsOwner
 
 from .models import Category, Product, Review
 from .serializers import (
@@ -79,17 +80,23 @@ class ProductListCreateAPIView(ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         serializer = ProductValidateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        print(request.auth.get("email"))
+        print(request.auth.get("last_login"))
 
         # Get validated data
         title = serializer.validated_data.get("title")
         description = serializer.validated_data.get("description")
         price = serializer.validated_data.get("price")
         category = serializer.validated_data.get("category")
-        owner = request.user
+        owner_id = request.auth.get("user_id")
 
         # Create product
         product = Product.objects.create(
-            title=title, description=description, price=price, category=category, owner=owner
+            title=title,
+            description=description,
+            price=price,
+            category=category,
+            owner_id=owner_id,
         )
 
         return Response(
