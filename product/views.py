@@ -6,6 +6,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
+from django.core.cache import cache
 
 from common.permissions import CanEditSomeTime, IsAnonymous, IsOwner
 
@@ -76,7 +77,18 @@ class ProductListCreateAPIView(ListCreateAPIView):
     serializer_class = ProductSerializer
     pagination_class = CustomPagination
     permission_classes = [IsOwner | IsAnonymous]
-
+    
+    def get(self, request, *args, **kwargs):
+        cached_data = cache.get("products_list")
+        if cached_data:
+            print("Cached_data SUCCESS, REDIS")
+            return Response(data=cached_data, status=status.HTTP_200_OK)
+        response = super().get(self, request, *args, **kwargs)
+        print("Used Postgres")
+        if response.data.get("total", 0) > 0:
+            cache.set("products_list", response.data, timeout=300)
+        return response
+        
     def post(self, request, *args, **kwargs):
         serializer = ProductValidateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
