@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from datetime import timedelta
 import os
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,10 +22,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET')
+SECRET_KEY = config('SECRET')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True if os.environ.get('DEBUG') == 'on' else False
+DEBUG = config("DEBUG", cast=bool)
 
 ALLOWED_HOSTS = ["*"]
 
@@ -196,3 +197,12 @@ CACHES = {
         }
     }
 }
+
+CELERY_BROKER_URL="redis://127.0.0.1:6379/4"
+CELERY_RESULT_BACKEND="redis://127.0.0.1:6379/4"
+
+EMAIL_USE_TLS = True
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_HOST_USER = "riszav.01@gmail.com"
+EMAIL_HOST_PASSWORD = "pdxd vzbn zvgo zqnj"
